@@ -148,12 +148,12 @@ router.put("/edit-project/:id", async (req, res) => {
       UPDATE projects 
       SET title = $1, 
           address = $2, 
-          "totalConstructionArea" = $3, 
-          "totalApartments" = $4, 
-          "roomType" = $5, 
-          "startDate" = $6, 
-          "deliveryDate" = $7, 
-          "availableForSale" = $8, 
+          "totalconstructionarea" = $3, 
+          "totalapartments" = $4, 
+          "roomtype" = $5, 
+          "startdate" = $6, 
+          "deliverydate" = $7, 
+          "availableforsale" = $8, 
           description = $9
       WHERE id = $10
       RETURNING *
