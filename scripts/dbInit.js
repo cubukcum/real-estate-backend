@@ -1,9 +1,17 @@
 const { Pool } = require("pg");
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
+
+// const pool = new Pool({
+//   connectionString: process.env.DATABASE_URL,
+// });
 
 const createTableQuery = `
 CREATE TABLE IF NOT EXISTS projects (
@@ -37,14 +45,27 @@ ON CONFLICT DO NOTHING;
 `;
 
 const createAdminTable = `
-CREATE TABLE admins (
+CREATE TABLE IF NOT EXISTS admins (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL
 );`;
 
+const createImagesTable = `
+CREATE TABLE IF NOT EXISTS project_images (
+    id SERIAL PRIMARY KEY,
+    project_id INTEGER REFERENCES projects(id),
+    file_key VARCHAR(255), 
+    file_name VARCHAR(255),  
+    file_size INTEGER, 
+    content_type VARCHAR(100), 
+    url TEXT,    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);`
+
 const initializeDatabase = async () => {
   try {
+    console.log("Connecting to the database...");
     const client = await pool.connect();
     console.log("Connected to the database.");
 
@@ -55,6 +76,12 @@ const initializeDatabase = async () => {
     // Insert data
     console.log("Inserting initial data...");
     await client.query(insertDataQuery);
+
+    console.log("Creating admin table...");
+    await client.query(createAdminTable);
+
+    console.log("Creating images table...");
+    await client.query(createImagesTable);
 
     console.log("Database initialized successfully.");
     client.release();
