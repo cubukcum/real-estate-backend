@@ -5,14 +5,14 @@ const crypto = require('crypto');
 const path = require('path');
 
 class UploadService {
-    static generateKey(filename) {
+    static generateKey(filename, projectId) {
         const uniqueId = crypto.randomBytes(16).toString('hex');
         const ext = path.extname(filename);
-        return `projects/${uniqueId}${ext}`;
+        return `projects/${projectId}/${uniqueId}${ext}`;
     }
 
     static async uploadFile(file, projectId) {
-        const fileKey = this.generateKey(file.originalname);
+        const fileKey = this.generateKey(file.originalname, projectId);
         
         try {
             // Upload to R2
