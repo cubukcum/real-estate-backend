@@ -6,13 +6,14 @@ require("dotenv").config();
 const app = express();
 const projectRoutes = require("./routes/projects");
 const adminRoutes = require("./routes/admin");
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Middleware
 app.use(bodyParser.json());
 
 // Configure CORS
 const corsOptions = {
-  origin: "https://ozsedir.vercel.app",
+  origin: "http://localhost:3000",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -32,6 +33,7 @@ app.use("/admin/dashboard", authMiddleware, adminRoutes);
 // Routes
 app.use("/projects", projectRoutes);
 app.use("/admin", adminRoutes);
+app.use("/upload", uploadRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
