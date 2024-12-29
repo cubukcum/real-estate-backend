@@ -11,8 +11,20 @@ const upload = multer({
 
 const uploadImage = async (req, res) => {
     try {
+        console.log('Received upload request');
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
         const file = req.file;
         const projectId = req.body.project_id;
+
+        if (!projectId) {
+            return res.status(400).json({ error: 'Project ID is required' });
+        }
+
+        console.log('Uploading file:', file.originalname, 'for project:', projectId);
 
         // Upload to R2
         const uploadResult = await UploadService.uploadFile(file, projectId);
@@ -33,8 +45,10 @@ const uploadImage = async (req, res) => {
             ]
         );
 
+        console.log('Upload successful');
         res.json(imageData.rows[0]);
     } catch (error) {
+        console.error('Upload error:', error);
         res.status(500).json({ error: error.message });
     }
 };
