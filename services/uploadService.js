@@ -1,4 +1,4 @@
-const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { r2Client, R2_BUCKET_NAME } = require('../config/r2');
 const crypto = require('crypto');
@@ -42,6 +42,30 @@ class UploadService {
             };
         } catch (error) {
             console.error('Upload error:', error);
+            throw error;
+        }
+    }
+
+    static async deleteFile(fileKey) {
+        console.log('UploadService: Attempting to delete file:', fileKey);
+        try {
+            const deleteCommand = new DeleteObjectCommand({
+                Bucket: process.env.R2_BUCKET_NAME,
+                Key: fileKey,
+            });
+            console.log('UploadService: Delete command created:', {
+                bucket: process.env.R2_BUCKET_NAME,
+                key: fileKey
+            });
+
+            const result = await r2Client.send(deleteCommand);
+            console.log('UploadService: Delete successful:', result);
+            return true;
+        } catch (error) {
+            console.error('UploadService: Delete error:', {
+                error: error.message,
+                stack: error.stack
+            });
             throw error;
         }
     }
