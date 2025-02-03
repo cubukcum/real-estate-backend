@@ -1,6 +1,6 @@
 const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const { r2Client, R2_BUCKET_NAME } = require('../config/r2');
+const { r2Client, R2_BUCKET_NAME, R2_CUSTOM_DOMAIN } = require('../config/r2');
 const crypto = require('crypto');
 const path = require('path');
 
@@ -9,6 +9,26 @@ class UploadService {
         const uniqueId = crypto.randomBytes(16).toString('hex');
         const ext = path.extname(filename);
         return `projects/${projectId}/${uniqueId}${ext}`;
+    }
+
+    static generatePublicUrl(fileKey) {
+        return `https://${R2_CUSTOM_DOMAIN}/${fileKey}`;
+    }
+
+    static async generateSignedUrl(fileKey) {
+        try {
+            return await getSignedUrl(
+                r2Client,
+                new GetObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME,
+                    Key: fileKey,
+                }),
+                { expiresIn: 604800 } // 7 days
+            );
+        } catch (error) {
+            console.error('Error generating signed URL:', error);
+            throw error;
+        }
     }
 
     static async uploadFile(file, projectId) {
@@ -21,24 +41,18 @@ class UploadService {
                 Key: fileKey,
                 Body: file.buffer,
                 ContentType: file.mimetype,
+                ACL: 'public-read'
             }));
 
-            // Generate signed URL (valid for 7 days)
-            const signedUrl = await getSignedUrl(
-                r2Client,
-                new GetObjectCommand({
-                    Bucket: process.env.R2_BUCKET_NAME,
-                    Key: fileKey,
-                }),
-                { expiresIn: 604800 } // 7 days in seconds
-            );
+            // Generate public URL using custom domain
+            const publicUrl = this.generatePublicUrl(fileKey);
 
             return {
                 fileKey,
                 fileName: file.originalname,
                 fileSize: file.size,
                 contentType: file.mimetype,
-                url: signedUrl
+                url: publicUrl
             };
         } catch (error) {
             console.error('Upload error:', error);
