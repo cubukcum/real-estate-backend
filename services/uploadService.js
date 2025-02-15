@@ -24,7 +24,7 @@ class UploadService {
       return await getSignedUrl(
         r2Client,
         new GetObjectCommand({
-          Bucket: process.env.R2_BUCKET_NAME,
+          Bucket: R2_BUCKET_NAME,
           Key: fileKey,
         }),
         { expiresIn: 604800 } // 7 days
@@ -42,7 +42,7 @@ class UploadService {
       // Upload to R2
       await r2Client.send(
         new PutObjectCommand({
-          Bucket: process.env.R2_BUCKET_NAME,
+          Bucket: R2_BUCKET_NAME,
           Key: fileKey,
           Body: file.buffer,
           ContentType: file.mimetype,
