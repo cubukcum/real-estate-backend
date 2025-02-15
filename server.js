@@ -6,7 +6,7 @@ require("dotenv").config();
 const app = express();
 const projectRoutes = require("./routes/projects");
 const adminRoutes = require("./routes/admin");
-const uploadRoutes = require('./routes/uploadRoutes');
+const uploadRoutes = require("./routes/uploadRoutes");
 
 // Middleware
 app.use(bodyParser.json());
@@ -18,12 +18,12 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   preflightContinue: false,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
 
 // Add custom OPTIONS handler for preflight requests
-app.options('*', cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 const authMiddleware = require("./middleware/auth");
 

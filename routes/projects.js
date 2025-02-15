@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Get project details
     const projectResult = await pool.query(
       "SELECT * FROM projects WHERE id = $1",
@@ -41,7 +41,7 @@ router.get("/:id", async (req, res) => {
     // Combine project with images
     const project = {
       ...projectResult.rows[0],
-      images: imagesResult.rows
+      images: imagesResult.rows,
     };
 
     res.json(project);
@@ -55,7 +55,7 @@ router.get("/:id", async (req, res) => {
 router.get("/:id/images", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // First check if project exists
     const projectCheck = await pool.query(
       "SELECT id FROM projects WHERE id = $1",
@@ -84,58 +84,58 @@ router.get("/:id/images", async (req, res) => {
 
 // Delete a specific image from a project
 router.delete("/:projectId/images/:imageId", async (req, res) => {
-    console.log('Delete image request received:', {
-        projectId: req.params.projectId,
-        imageId: req.params.imageId
-    });
+  console.log("Delete image request received:", {
+    projectId: req.params.projectId,
+    imageId: req.params.imageId,
+  });
 
-    try {
-        const { projectId, imageId } = req.params;
+  try {
+    const { projectId, imageId } = req.params;
 
-        // First get the image details
-        console.log('Fetching image details from database...');
-        const imageQuery = await pool.query(
-            `SELECT * FROM project_images 
+    // First get the image details
+    console.log("Fetching image details from database...");
+    const imageQuery = await pool.query(
+      `SELECT * FROM project_images 
              WHERE id = $1 AND project_id = $2`,
-            [imageId, projectId]
-        );
-        console.log('Image query result:', imageQuery.rows);
+      [imageId, projectId]
+    );
+    console.log("Image query result:", imageQuery.rows);
 
-        if (imageQuery.rows.length === 0) {
-            console.log('Image not found in database');
-            return res.status(404).json({ error: "Image not found" });
-        }
-
-        const image = imageQuery.rows[0];
-        console.log('Found image:', image);
-
-        // Delete from R2
-        console.log('Attempting to delete from R2 storage:', image.file_key);
-        await UploadService.deleteFile(image.file_key);
-        console.log('Successfully deleted from R2 storage');
-
-        // Delete from database
-        console.log('Deleting image record from database...');
-        const deleteResult = await pool.query(
-            "DELETE FROM project_images WHERE id = $1 RETURNING *",
-            [imageId]
-        );
-        console.log('Database deletion result:', deleteResult.rows[0]);
-
-        res.json({ 
-            message: "Image deleted successfully",
-            deletedImage: deleteResult.rows[0]
-        });
-    } catch (error) {
-        console.error("Error deleting image:", {
-            error: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({ 
-            error: "Failed to delete image",
-            details: error.message
-        });
+    if (imageQuery.rows.length === 0) {
+      console.log("Image not found in database");
+      return res.status(404).json({ error: "Image not found" });
     }
+
+    const image = imageQuery.rows[0];
+    console.log("Found image:", image);
+
+    // Delete from R2
+    console.log("Attempting to delete from R2 storage:", image.file_key);
+    await UploadService.deleteFile(image.file_key);
+    console.log("Successfully deleted from R2 storage");
+
+    // Delete from database
+    console.log("Deleting image record from database...");
+    const deleteResult = await pool.query(
+      "DELETE FROM project_images WHERE id = $1 RETURNING *",
+      [imageId]
+    );
+    console.log("Database deletion result:", deleteResult.rows[0]);
+
+    res.json({
+      message: "Image deleted successfully",
+      deletedImage: deleteResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Error deleting image:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({
+      error: "Failed to delete image",
+      details: error.message,
+    });
+  }
 });
 
 module.exports = router;

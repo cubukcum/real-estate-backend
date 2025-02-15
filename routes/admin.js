@@ -87,11 +87,18 @@ router.post("/add-project", async (req, res) => {
       startDate,
       deliveryDate,
       availableForSale,
-      description
+      description,
     } = req.body;
 
     // Validate required fields
-    if (!title || !address || !totalConstructionArea || !totalApartments || !startDate || !deliveryDate) {
+    if (
+      !title ||
+      !address ||
+      !totalConstructionArea ||
+      !totalApartments ||
+      !startDate ||
+      !deliveryDate
+    ) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -112,7 +119,7 @@ router.post("/add-project", async (req, res) => {
       startDate,
       deliveryDate,
       availableForSale,
-      description
+      description,
     ];
 
     const result = await pool.query(query, values);
@@ -136,11 +143,18 @@ router.put("/edit-project/:id", async (req, res) => {
       startDate,
       deliveryDate,
       availableForSale,
-      description
+      description,
     } = req.body;
 
     // Validate required fields
-    if (!title || !address || !totalConstructionArea || !totalApartments || !startDate || !deliveryDate) {
+    if (
+      !title ||
+      !address ||
+      !totalConstructionArea ||
+      !totalApartments ||
+      !startDate ||
+      !deliveryDate
+    ) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -169,7 +183,7 @@ router.put("/edit-project/:id", async (req, res) => {
       deliveryDate,
       availableForSale,
       description,
-      id
+      id,
     ];
 
     const result = await pool.query(query, values);
@@ -197,7 +211,10 @@ router.delete("/delete-project/:id", async (req, res) => {
       return res.status(404).json({ error: "Project not found" });
     }
 
-    res.json({ message: "Project deleted successfully", project: result.rows[0] });
+    res.json({
+      message: "Project deleted successfully",
+      project: result.rows[0],
+    });
   } catch (error) {
     console.error("Error deleting project:", error.message);
     res.status(500).json({ error: "Failed to delete project" });

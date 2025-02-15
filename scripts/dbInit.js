@@ -1,5 +1,5 @@
 const { Pool } = require("pg");
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS project_images (
     content_type VARCHAR(100), 
     url TEXT,    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);`
+);`;
 
 const initializeDatabase = async () => {
   try {

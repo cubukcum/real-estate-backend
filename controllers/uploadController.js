@@ -1,59 +1,64 @@
-const UploadService = require('../services/uploadService');
-const multer = require('multer');
-const db = require('../db');
+const UploadService = require("../services/uploadService");
+const multer = require("multer");
+const db = require("../db");
 
 const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
-    }
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
 });
 
 const uploadImage = async (req, res) => {
-    try {
-        console.log('Received upload request');
-        
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
-        }
+  try {
+    console.log("Received upload request");
 
-        const file = req.file;
-        const projectId = req.body.project_id;
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-        if (!projectId) {
-            return res.status(400).json({ error: 'Project ID is required' });
-        }
+    const file = req.file;
+    const projectId = req.body.project_id;
 
-        console.log('Uploading file:', file.originalname, 'for project:', projectId);
+    if (!projectId) {
+      return res.status(400).json({ error: "Project ID is required" });
+    }
 
-        // Upload to R2
-        const uploadResult = await UploadService.uploadFile(file, projectId);
+    console.log(
+      "Uploading file:",
+      file.originalname,
+      "for project:",
+      projectId
+    );
 
-        // Save to database
-        const imageData = await db.query(
-            `INSERT INTO project_images 
+    // Upload to R2
+    const uploadResult = await UploadService.uploadFile(file, projectId);
+
+    // Save to database
+    const imageData = await db.query(
+      `INSERT INTO project_images 
              (project_id, file_key, file_name, file_size, content_type, url)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING *`,
-            [
-                projectId,
-                uploadResult.fileKey,
-                uploadResult.fileName,
-                uploadResult.fileSize,
-                uploadResult.contentType,
-                uploadResult.url
-            ]
-        );
+      [
+        projectId,
+        uploadResult.fileKey,
+        uploadResult.fileName,
+        uploadResult.fileSize,
+        uploadResult.contentType,
+        uploadResult.url,
+      ]
+    );
 
-        console.log('Upload successful');
-        res.json(imageData.rows[0]);
-    } catch (error) {
-        console.error('Upload error:', error);
-        res.status(500).json({ error: error.message });
-    }
+    console.log("Upload successful");
+    res.json(imageData.rows[0]);
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 module.exports = {
-    uploadMiddleware: upload.single('image'),
-    uploadImage
+  uploadMiddleware: upload.single("image"),
+  uploadImage,
 };
