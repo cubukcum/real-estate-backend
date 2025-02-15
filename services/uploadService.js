@@ -70,7 +70,7 @@ class UploadService {
           mimeType: file.mimetype,
           projectId: projectId,
         },
-        bucket: process.env.R2_BUCKET_NAME,
+        bucket: R2_BUCKET_NAME,
         fileKey: fileKey,
       });
 
@@ -85,11 +85,11 @@ class UploadService {
     console.log("UploadService: Attempting to delete file:", fileKey);
     try {
       const deleteCommand = new DeleteObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME,
+        Bucket: R2_BUCKET_NAME,
         Key: fileKey,
       });
       console.log("UploadService: Delete command created:", {
-        bucket: process.env.R2_BUCKET_NAME,
+        bucket: R2_BUCKET_NAME,
         key: fileKey,
       });
 
