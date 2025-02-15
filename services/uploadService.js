@@ -61,8 +61,23 @@ class UploadService {
         url: publicUrl,
       };
     } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
+      console.error("Upload error details:", {
+        error: error.message,
+        stack: error.stack,
+        fileInfo: {
+          fileName: file.originalname,
+          fileSize: file.size,
+          mimeType: file.mimetype,
+          projectId: projectId,
+        },
+        bucket: process.env.R2_BUCKET_NAME,
+        fileKey: fileKey,
+      });
+
+      // Re-throw the error with more context
+      throw new Error(
+        `Failed to upload file ${file.originalname}: ${error.message}`
+      );
     }
   }
 
