@@ -78,6 +78,7 @@ router.get("/stats", async (req, res) => {
 // Add new project route (protected by auth middleware)
 router.post("/add-project", async (req, res) => {
   try {
+    console.log("Received add-project request with body:", req.body);
     const {
       title,
       address,
@@ -90,7 +91,16 @@ router.post("/add-project", async (req, res) => {
       description,
     } = req.body;
 
-    // Validate required fields
+    // Log validation check
+    console.log("Validating required fields:", {
+      title,
+      address,
+      totalConstructionArea,
+      totalApartments,
+      startDate,
+      deliveryDate,
+    });
+
     if (
       !title ||
       !address ||
@@ -99,10 +109,10 @@ router.post("/add-project", async (req, res) => {
       !startDate ||
       !deliveryDate
     ) {
+      console.log("Validation failed - missing fields");
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Insert new project
     const query = `
       INSERT INTO projects 
       (title, address, totalConstructionArea, totalApartments, roomType, startDate, deliveryDate, availableForSale, description)
@@ -122,10 +132,17 @@ router.post("/add-project", async (req, res) => {
       description,
     ];
 
+    console.log("Executing query with values:", values);
     const result = await pool.query(query, values);
+    console.log("Query result:", result.rows[0]);
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error("Error adding project:", error.message);
+    console.error("Error adding project:", {
+      error: error.message,
+      stack: error.stack,
+      details: error.detail, // PostgreSQL specific error details
+    });
     res.status(500).json({ error: "Failed to add project" });
   }
 });
