@@ -36,11 +36,11 @@ app.use("/projects", projectRoutes);
 app.use("/admin", adminRoutes);
 app.use("/upload", uploadRoutes);
 
-// Public route for creating messages
-app.use("/messages", messageRoutes);
-
 // Protected routes for admin message management
 app.use("/admin/messages", authMiddleware, messageRoutes);
+
+// Public route for creating messages
+app.use("/messages", messageRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
