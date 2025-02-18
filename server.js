@@ -7,6 +7,7 @@ const app = express();
 const projectRoutes = require("./routes/projects");
 const adminRoutes = require("./routes/admin");
 const uploadRoutes = require("./routes/uploadRoutes");
+const messageRoutes = require("./routes/messages");
 
 // Middleware
 app.use(bodyParser.json());
@@ -34,6 +35,12 @@ app.use("/admin/dashboard", authMiddleware, adminRoutes);
 app.use("/projects", projectRoutes);
 app.use("/admin", adminRoutes);
 app.use("/upload", uploadRoutes);
+
+// Public route for creating messages
+app.use("/messages", messageRoutes);
+
+// Protected routes for admin message management
+app.use("/admin/messages", authMiddleware, messageRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

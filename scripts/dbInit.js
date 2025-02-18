@@ -63,6 +63,17 @@ CREATE TABLE IF NOT EXISTS project_images (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );`;
 
+const createMessagesTable = `
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'unread'
+);
+`;
+
 const initializeDatabase = async () => {
   try {
     console.log("Connecting to the database...");
