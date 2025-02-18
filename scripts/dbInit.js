@@ -94,6 +94,9 @@ const initializeDatabase = async () => {
     console.log("Creating images table...");
     await client.query(createImagesTable);
 
+    console.log("Creating messages table...");
+    await client.query(createMessagesTable);
+
     console.log("Database initialized successfully.");
     client.release();
   } catch (error) {
